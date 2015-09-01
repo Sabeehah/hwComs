@@ -23,13 +23,8 @@ int cmd_quit(tok_t arg[]) {
 }
 
 int cmd_cd(tok_t arg[]) {
-
-<<<<<<< HEAD
 	chdir (arg[0]);
-=======
-chdir (arg[0]);
 
->>>>>>> ad95bad5e69b8777b546b5d862f79b7c61ae3805
 }
 
 int cmd_help(tok_t arg[]);
