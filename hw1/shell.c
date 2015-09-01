@@ -28,6 +28,52 @@ int cmd_cd(tok_t arg[]) {
 
 }
 
+char* concatenate(char *string1, char *string2)
+{
+	char *f = malloc(strlen(string1) + strlen(string2) + 1);
+	strcpy(f, string1);
+	strcat(f, string2);
+	return f;
+}
+
+char* newpath(tok_t arg[])
+{
+	tok_t *absolute;
+	char* path = getenv("PATH");
+	absolute = getToks(path);
+	char* n = NULL;
+	FILE * file;
+
+	int i;
+
+	for (i = 0; i < MAXTOKS;i++){
+
+	n = concatenate(absolute[i],"/");
+	n = concatenate(n, arg[0]);
+     
+	file = fopen(n, "r");
+
+		if (file == NULL){  
+			continue;
+		}
+		else{
+
+			break;
+		}
+
+	fclose(file);
+	}
+ 
+
+	if (n == NULL){
+
+	return arg[0];
+
+	}
+
+	return n;
+}
+
 int cmd_exec(tok_t arg[]) {
 
 	int prt_id;
@@ -37,8 +83,9 @@ int cmd_exec(tok_t arg[]) {
 
 	if(prt_id == 0){
 
-		execv(path,arg);
-		exit(0);
+		path = newpath(arg);
+		execv(path, arg);
+    		exit(0);
 	}
 
 	else if(prt_id < 0){
@@ -47,8 +94,8 @@ int cmd_exec(tok_t arg[]) {
 		return (-1);
 	}
 
-	wait(NULL);
-	return 1;
+    wait(NULL);
+    return (1);
 }
 
 
@@ -141,7 +188,7 @@ int shell (int argc, char *argv[]) {
   pid_t pid = getpid();		/* get current processes PID */
   pid_t ppid = getppid();	/* get parents PID */
   pid_t cpid, tcpid, cpgid;
-
+	
   init_shell();
 
   printf("%s running as PID %d under %d\n",argv[0],pid,ppid);
@@ -156,7 +203,7 @@ int shell (int argc, char *argv[]) {
 
       cmd_exec(t);
     }
-    fprintf(stdout, "%d %s: ", lineNum, get_current_dir_name());
+    fprintf(stdout, "%d %s: ", lineNum++, get_current_dir_name());
   }
   return 0;
 }
