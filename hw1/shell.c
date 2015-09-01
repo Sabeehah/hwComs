@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdbool.h>
+#include <pthread.h>
 
 #define INPUT_STRING_SIZE 80
 
@@ -26,6 +27,30 @@ int cmd_cd(tok_t arg[]) {
 	chdir (arg[0]);
 
 }
+
+int cmd_exec(tok_t arg[]) {
+
+	int prt_id;
+	char* path = arg[0];
+
+	prt_id = fork();
+
+	if(prt_id == 0){
+
+		execv(path,arg);
+		exit(0);
+	}
+
+	else if(prt_id < 0){
+
+		fprintf(stderr,"Failed this execution: %s\n", arg[0]);
+		return (-1);
+	}
+
+	wait(NULL);
+	return 1;
+}
+
 
 int cmd_help(tok_t arg[]);
 
@@ -128,7 +153,8 @@ int shell (int argc, char *argv[]) {
     fundex = lookup(t[0]); /* Is first token a shell literal */
     if(fundex >= 0) cmd_table[fundex].fun(&t[1]);
     else {
-      fprintf(stdout, "This shell only supports built-ins. Replace this to run programs as commands.\n");
+
+      cmd_exec(t);
     }
     fprintf(stdout, "%d %s: ", lineNum, get_current_dir_name());
   }
